@@ -1,0 +1,22 @@
+{
+  "name": "encfs",
+  "description": "encfs wrapper for nodejs",
+  "version": "0.0.1",
+  "author": {
+    "name": "Johannes Zellner",
+    "email": "webmaster@nebulon.de"
+  },
+  "engines": [
+    "node >= 0.8.0"
+  ],
+  "dependencies": {
+    "mkdirp" : ""
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "expect.js": "*"
+  },
+  "scripts": {
+    "test": "cd test; ../node_modules/mocha/bin/mocha -R spec;"
+  }
+}

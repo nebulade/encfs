@@ -9,6 +9,10 @@
   "engines": [
     "node >= 0.8.0"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://bitbucket.org/yellowtent/encfs.git"
+  },
   "dependencies": {
     "mkdirp" : ""
   },
@@ -17,6 +21,6 @@
     "expect.js": "*"
   },
   "scripts": {
-    "test": "cd test; ../node_modules/mocha/bin/mocha -R spec;"
+    "test": "./node_modules/mocha/bin/mocha -R spec ./test"
   }
 }

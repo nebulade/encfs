@@ -4,18 +4,35 @@
 
 /* global it:false */
 /* global describe:false */
+/* global before:false */
+/* global after:false */
 
 var encfs = require('../index.js'),
+    exec = require('child_process').exec,
     async = require('async');
 
 var assert = require('assert');
 var expect = require('expect.js');
 
+var TEST_ROOT = 'test_root';
+var TEST_MNT = 'test_mnt';
+
+function cleanup(done) {
+    exec('rm -rf ' + TEST_ROOT, {}, function (error, stdout, stderr) {
+        exec('rm -rf ' + TEST_MNT, {}, function (error, stdout, stderr) {
+            done();
+        });
+    });
+}
+
 describe('encfs', function () {
     var volume;
 
+    before(cleanup);
+    after(cleanup);
+
     it('create volume', function (done) {
-        encfs.create('test_root', 'test_mnt', 'foobar1337', function (error, result) {
+        encfs.create(TEST_ROOT, TEST_MNT, 'foobar1337', function (error, result) {
             expect(error).to.not.be.ok();
             expect(result).to.be.ok();
 

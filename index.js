@@ -17,7 +17,7 @@ var ENCFS_CMD_ARGS = ["--standard", "--stdinpass"];
 var ENCFS_CTL = "encfsctl";
 
 var FUSE_CMD = os.platform() === "darwin" ? "umount" : "fusermount";
-var FUSE_CMD_UMOUNT_ARGS = ["-u"];
+var FUSE_CMD_UMOUNT_ARGS = os.platform() === "darwin" ? [ ] : ["-u"];
 
 // Internal helper
 function spawnProcess(process, args, callback) {

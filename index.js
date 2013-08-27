@@ -4,7 +4,8 @@ var assert = require("assert"),
     path = require("path"),
     mkdirp = require('mkdirp'),
     exec = require('child_process').exec,
-    spawn = require("child_process").spawn;
+    spawn = require("child_process").spawn,
+    os = require("os");
 
 exports = module.exports = {
     create: create,
@@ -15,7 +16,7 @@ var ENCFS_CMD = "encfs";
 var ENCFS_CMD_ARGS = ["--standard", "--stdinpass"];
 var ENCFS_CTL = "encfsctl";
 
-var FUSE_CMD = "fusermount";
+var FUSE_CMD = os.platform() === "darwin" ? "umount" : "fusermount";
 var FUSE_CMD_UMOUNT_ARGS = ["-u"];
 
 // Internal helper

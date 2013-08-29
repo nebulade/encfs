@@ -17,6 +17,9 @@ var expect = require('expect.js');
 var TEST_ROOT = 'test_root';
 var TEST_MNT = 'test_mnt';
 
+var TEST_ROOT_FAIL = '/test_root';
+var TEST_MNT_FAIL = '/test_mnt';
+
 function cleanup(done) {
     exec('rm -rf ' + TEST_ROOT, {}, function (error, stdout, stderr) {
         exec('rm -rf ' + TEST_MNT, {}, function (error, stdout, stderr) {
@@ -26,55 +29,98 @@ function cleanup(done) {
 }
 
 describe('encfs', function () {
-    var volume;
+    describe('root', function () {
+        var volume;
 
-    before(cleanup);
-    after(cleanup);
+        before(cleanup);
+        after(cleanup);
 
-    it('create volume', function (done) {
-        encfs.create(TEST_ROOT, TEST_MNT, 'foobar1337', function (error, result) {
-            expect(error).to.not.be.ok();
-            expect(result).to.be.ok();
+        it('create', function (done) {
+            encfs.create(TEST_ROOT, TEST_MNT, 'foobar1337', function (error, result) {
+                expect(error).to.not.be.ok();
+                expect(result).to.be.ok();
 
-            volume = result;
-            done();
+                volume = result;
+                done();
+            });
+        });
+
+        it('check volume is mounted', function (done) {
+            volume.isMounted(function (error, result) {
+                expect(error).to.not.be.ok();
+                expect(result).to.be.ok();
+                done();
+            });
+        });
+
+        it('unmount volume', function (done) {
+            volume.unmount(function (error) {
+                expect(error).to.not.be.ok();
+                done();
+            });
+        });
+
+        it('check volume is unmounted', function (done) {
+            volume.isMounted(function (error, result) {
+                expect(error).to.not.be.ok();
+                expect(result).to.not.be.ok();
+                done();
+            });
+        });
+
+        it('mount volume', function (done) {
+            volume.mount('foobar1337', function (error) {
+                expect(error).to.not.be.ok();
+                done();
+            });
+        });
+
+        it('unmount volume', function (done) {
+            volume.unmount(function (error) {
+                expect(error).to.not.be.ok();
+                done();
+            });
         });
     });
 
-    it('check volume is mounted', function (done) {
-        volume.isMounted(function (error, result) {
-            expect(error).to.not.be.ok();
-            expect(result).to.be.ok();
-            done();
-        });
-    });
+    describe('create should fail', function () {
+        it('mount point cannot be created', function (done) {
+            encfs.create(TEST_ROOT, TEST_MNT_FAIL, 'foobar1337', function (error, result) {
+                expect(error).to.be.ok();
+                expect(result).to.not.be.ok();
+                expect(error.code).to.be.equal('EACCES');
 
-    it('unmount volume', function (done) {
-        volume.unmount(function (error) {
-            expect(error).to.not.be.ok();
-            done();
+                done();
+            });
         });
-    });
 
-    it('check volume is unmounted', function (done) {
-        volume.isMounted(function (error, result) {
-            expect(error).to.not.be.ok();
-            expect(result).to.not.be.ok();
-            done();
+        it('root directory cannot be created', function (done) {
+            encfs.create(TEST_ROOT_FAIL, TEST_MNT, 'foobar1337', function (error, result) {
+                expect(error).to.be.ok();
+                expect(result).to.not.be.ok();
+                expect(error.code).to.be.equal('EACCES');
+
+                done();
+            });
         });
-    });
 
-    it('mount volume', function (done) {
-        volume.mount('foobar1337', function (error) {
-            expect(error).to.not.be.ok();
-            done();
+        it('root directory and mount point cannot be created', function (done) {
+            encfs.create(TEST_ROOT_FAIL, TEST_MNT_FAIL, 'foobar1337', function (error, result) {
+                expect(error).to.be.ok();
+                expect(result).to.not.be.ok();
+                expect(error.code).to.be.equal('EACCES');
+
+                done();
+            });
         });
-    });
 
-    it('unmount volume', function (done) {
-        volume.unmount(function (error) {
-            expect(error).to.not.be.ok();
-            done();
+        it('empty password provided', function (done) {
+            encfs.create(TEST_ROOT, TEST_MNT, '', function (error, result) {
+                expect(error).to.be.ok();
+                expect(result).to.not.be.ok();
+
+                done();
+            });
         });
     });
 });

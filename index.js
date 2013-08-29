@@ -5,6 +5,7 @@ var assert = require("assert"),
     mkdirp = require('mkdirp'),
     exec = require('child_process').exec,
     spawn = require("child_process").spawn,
+    debug = require('debug')('encfs'),
     os = require("os");
 
 exports = module.exports = {
@@ -24,12 +25,12 @@ function spawnProcess(process, args, callback) {
     var proc = spawn(process, args);
 
     proc.on("error", function (code, signal) {
-        // console.log("Error", code, signal);
+        debug('Process error: code %d caused by signal %s', code, signal);
         callback({ code: code, signal: signal });
     });
 
     proc.on("exit", function (code, signal) {
-        // console.log("Exit", code, signal);
+        debug('Process exit: code %d caused by signal %s', code, signal);
         if (code !== 0) {
             return callback({ code: code, signal: signal });
         }
@@ -38,11 +39,11 @@ function spawnProcess(process, args, callback) {
     });
 
     proc.stdout.on('data', function (data) {
-        // console.log('stdout: ' + data);
+        debug('Process data on stdout: %s', data);
     });
 
     proc.stderr.on('data', function (data) {
-        // console.log('stderr: ' + data);
+        debug('Process data on stderr: %s', data);
     });
 
     return proc.stdin;
@@ -94,16 +95,23 @@ function create(rootPath, mountPoint, password, callback) {
     assert(typeof password === "string", "3 argument must be a string");
     assert(typeof callback === "function", "4 argument must be a callback function");
 
+    if (password.length === 0) {
+        debug('encfs.create() - Password must not be zero length');
+        return callback(new Error('Password must not be zero length'));
+    }
+
     var absRootPath = path.resolve(__dirname, rootPath);
     var absMountPoint = path.resolve(__dirname, mountPoint);
 
     mkdirp(absRootPath, function (error) {
         if (error) {
+            debug('encfs.create() - Unable to mkdir root path "%s": ' + error, absRootPath);
             return callback(error);
         }
 
         mkdirp(absMountPoint, function (error) {
             if (error) {
+                debug('encfs.create() - Unable to mkdir mount point path "%s": ' + error, absMountPoint);
                 return callback(error);
             }
 
@@ -111,6 +119,7 @@ function create(rootPath, mountPoint, password, callback) {
 
             createOrMount(root, password, function (error) {
                 if (error) {
+                    debug('encfs.create() - Unable create encrypted root "%s": ' + error, root);
                     return callback(error);
                 }
 
@@ -152,6 +161,7 @@ Root.prototype.isMounted = function(callback) {
 
     exec('mount', {}, function (error, stdout, stderr) {
         if (error) {
+            debug("encfs.Root.isMounted() - Unable to check mount state: " + error);
             return callback(error);
         }
 

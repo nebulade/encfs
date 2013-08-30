@@ -20,7 +20,8 @@
   "devDependencies": {
     "mocha": "*",
     "istanbul": "*",
-    "expect.js": "*"
+    "expect.js": "*",
+    "async": "*"
   },
   "scripts": {
     "test": "./node_modules/istanbul/lib/cli.js test ./node_modules/mocha/bin/_mocha -- ./test"

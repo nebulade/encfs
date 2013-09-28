@@ -1,7 +1,7 @@
 {
   "name": "encfs",
   "description": "encfs wrapper for nodejs",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": {
     "name": "Johannes Zellner",
     "email": "webmaster@nebulon.de"
@@ -11,7 +11,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://bitbucket.org/yellowtent/encfs.git"
+    "url": "https://github.com/nebulade/encfs.git"
   },
   "dependencies": {
     "mkdirp" : "",

@@ -5,8 +5,6 @@ EncFS node module
 Introduction
 ------------
 
-__!still under heavy development!__
-
 This node module is a wrapper around the encfs deamon.
 It relies on encfs being present on the system. If present, the module
 works on Linux and MacOS.

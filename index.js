@@ -1,35 +1,35 @@
 'use strict';
 
-var assert = require("assert"),
-    path = require("path"),
+var assert = require('assert'),
+    path = require('path'),
     mkdirp = require('mkdirp'),
     exec = require('child_process').exec,
-    spawn = require("child_process").spawn,
+    spawn = require('child_process').spawn,
     debug = require('debug')('encfs'),
-    os = require("os");
+    os = require('os');
 
 exports = module.exports = {
     create: create,
     Root: Root
 };
 
-var ENCFS_CMD = "encfs";
-var ENCFS_CMD_ARGS = ["--standard", "--stdinpass"];
-var ENCFS_CTL = "encfsctl";
+var ENCFS_CMD = 'encfs';
+var ENCFS_CMD_ARGS = ['--standard', '--stdinpass'];
+var ENCFS_CTL = 'encfsctl';
 
-var FUSE_CMD = os.platform() === "darwin" ? "umount" : "fusermount";
-var FUSE_CMD_UMOUNT_ARGS = os.platform() === "darwin" ? [ ] : ["-u"];
+var FUSE_CMD = os.platform() === 'darwin' ? 'umount' : 'fusermount';
+var FUSE_CMD_UMOUNT_ARGS = os.platform() === 'darwin' ? [ ] : ['-u'];
 
 // Internal helper
 function spawnProcess(process, args, callback) {
     var proc = spawn(process, args);
 
-    proc.on("error", function (code, signal) {
+    proc.on('error', function (code, signal) {
         debug('Process error: code %d caused by signal %s', code, signal);
         callback({ code: code, signal: signal });
     });
 
-    proc.on("exit", function (code, signal) {
+    proc.on('exit', function (code, signal) {
         debug('Process exit: code %d caused by signal %s', code, signal);
         if (code !== 0) {
             return callback({ code: code, signal: signal });
@@ -83,17 +83,17 @@ function createOrMount(root, password, callback) {
             return callbackWrapper(e);
         }
     } else {
-        return callbackWrapper("No stdin available");
+        return callbackWrapper('No stdin available');
     }
 }
 
 // creates a new encypted volume
 // <- returns the newly created Root object in the callback's result
 function create(rootPath, mountPoint, password, callback) {
-    assert(typeof rootPath === "string", "1 argument must be a string");
-    assert(typeof mountPoint === "string", "2 argument must be a string");
-    assert(typeof password === "string", "3 argument must be a string");
-    assert(typeof callback === "function", "4 argument must be a callback function");
+    assert(typeof rootPath === 'string', '1 argument must be a string');
+    assert(typeof mountPoint === 'string', '2 argument must be a string');
+    assert(typeof password === 'string', '3 argument must be a string');
+    assert(typeof callback === 'function', '4 argument must be a callback function');
 
     if (password.length === 0) {
         debug('encfs.create() - Password must not be zero length');
@@ -130,22 +130,22 @@ function create(rootPath, mountPoint, password, callback) {
 }
 
 function Root(rootPath, mountPoint) {
-    assert(typeof rootPath === "string", "1 argument must be a string");
-    assert(typeof mountPoint === "string", "2 argument must be a string");
+    assert(typeof rootPath === 'string', '1 argument must be a string');
+    assert(typeof mountPoint === 'string', '2 argument must be a string');
 
     this.rootPath = rootPath;
     this.mountPoint = mountPoint;
 }
 
 Root.prototype.mount = function(password, callback) {
-    assert(typeof password === "string", "1 argument must be a string");
-    assert(typeof callback === "function", "2 argument must be a callback function");
+    assert(typeof password === 'string', '1 argument must be a string');
+    assert(typeof callback === 'function', '2 argument must be a callback function');
 
     createOrMount(this, password, callback);
 };
 
 Root.prototype.unmount = function(callback) {
-    assert(typeof callback === "function", "1 argument must be a callback function");
+    assert(typeof callback === 'function', '1 argument must be a callback function');
 
     var args = FUSE_CMD_UMOUNT_ARGS.concat([this.mountPoint]);
 
@@ -153,7 +153,7 @@ Root.prototype.unmount = function(callback) {
 };
 
 Root.prototype.info = function(callback) {
-    assert(typeof callback === "function", "1 argument must be a callback function");
+    assert(typeof callback === 'function', '1 argument must be a callback function');
 };
 
 Root.prototype.isMounted = function(callback) {
@@ -161,7 +161,7 @@ Root.prototype.isMounted = function(callback) {
 
     exec('mount', {}, function (error, stdout, stderr) {
         if (error) {
-            debug("encfs.Root.isMounted() - Unable to check mount state: " + error);
+            debug('encfs.Root.isMounted() - Unable to check mount state: ' + error);
             return callback(error);
         }
 

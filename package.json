@@ -24,6 +24,6 @@
     "async": "*"
   },
   "scripts": {
-    "test": "./node_modules/istanbul/lib/cli.js test ./node_modules/mocha/bin/_mocha -- ./test"
+    "test": "./node_modules/istanbul/lib/cli.js test ./node_modules/mocha/bin/_mocha -- -R spec ./test"
   }
 }

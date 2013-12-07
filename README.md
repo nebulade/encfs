@@ -7,7 +7,7 @@ Introduction
 
 This node module is a wrapper around the encfs deamon.
 It relies on encfs being present on the system. If present, the module
-works on Linux and MacOS.
+should work on Linux and MacOS, if not please report a bug.
 
 
 Installation
@@ -19,6 +19,10 @@ Simply via npm:
 npm install encfs
 ```
 
+Tests
+-----
+
+In a repository clone install all dependencies `npm install` and run `npm test`.
 
 Usage
 -----

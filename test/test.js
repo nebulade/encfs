@@ -8,24 +8,23 @@
 /* global after:false */
 
 var encfs = require('../index.js'),
-    exec = require('child_process').exec,
-    async = require('async');
+    crypto = require('crypto'),
+    path = require('path'),
+    rimraf = require('rimraf'),
+    async = require('async'),
+    assert = require('assert'),
+    expect = require('expect.js');
 
-var assert = require('assert');
-var expect = require('expect.js');
-
-var TEST_ROOT = 'test_root';
-var TEST_MNT = 'test_mnt';
+var TMP_DIR = 'encfs-test-' + crypto.randomBytes(4).readUInt32LE(0);
+var TEST_ROOT = path.join(TMP_DIR, 'test_root');
+var TEST_MNT = path.join(TMP_DIR, 'test_mnt');
 
 var TEST_ROOT_FAIL = '/test_root';
 var TEST_MNT_FAIL = '/test_mnt';
 
 function cleanup(done) {
-    exec('rm -rf ' + TEST_ROOT, {}, function (error, stdout, stderr) {
-        exec('rm -rf ' + TEST_MNT, {}, function (error, stdout, stderr) {
-            done();
-        });
-    });
+    rimraf.sync(TMP_DIR);
+    done();
 }
 
 describe('encfs', function () {
@@ -84,6 +83,10 @@ describe('encfs', function () {
     });
 
     describe('create should fail', function () {
+
+        before(cleanup);
+        after(cleanup);
+
         it('mount point cannot be created', function (done) {
             encfs.create(TEST_ROOT, TEST_MNT_FAIL, 'foobar1337', function (error, result) {
                 expect(error).to.be.ok();

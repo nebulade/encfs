@@ -25,7 +25,8 @@
     "mocha": "~1.15.1",
     "istanbul": "~0.1.46",
     "expect.js": "~0.2.0",
-    "async": "~0.2.9"
+    "async": "~0.2.9",
+    "rimraf": "~2.2.4"
   },
   "scripts": {
     "test": "./node_modules/istanbul/lib/cli.js test ./node_modules/mocha/bin/_mocha -- -R spec ./test"

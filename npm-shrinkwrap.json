@@ -1,0 +1,14 @@
+{
+  "name": "encfs",
+  "version": "0.1.0",
+  "dependencies": {
+    "mkdirp": {
+      "version": "0.3.5",
+      "from": "mkdirp@"
+    },
+    "debug": {
+      "version": "0.7.4",
+      "from": "debug@*"
+    }
+  }
+}

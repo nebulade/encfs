@@ -1,7 +1,7 @@
 {
   "name": "encfs",
   "description": "encfs wrapper for nodejs",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "author": {
     "name": "Johannes Zellner",
     "email": "webmaster@nebulon.de"
@@ -11,17 +11,17 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/nebulade/encfs.git"
+    "url": "https://github.com/nebulade/encfs"
   },
   "dependencies": {
-    "mkdirp" : "",
-    "debug": "*"
+    "mkdirp": "~0.3.5",
+    "debug": "~0.7.4"
   },
   "devDependencies": {
-    "mocha": "*",
-    "istanbul": "*",
-    "expect.js": "*",
-    "async": "*"
+    "mocha": "~1.15.1",
+    "istanbul": "~0.1.46",
+    "expect.js": "~0.2.0",
+    "async": "~0.2.9"
   },
   "scripts": {
     "test": "./node_modules/istanbul/lib/cli.js test ./node_modules/mocha/bin/_mocha -- -R spec ./test"

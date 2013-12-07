@@ -2,6 +2,7 @@
 
 var assert = require('assert'),
     path = require('path'),
+    util = require('util'),
     mkdirp = require('mkdirp'),
     exec = require('child_process').exec,
     spawn = require('child_process').spawn,
@@ -9,9 +10,24 @@ var assert = require('assert'),
     os = require('os');
 
 exports = module.exports = {
+    BUSY_TIMEOUT: BUSY_TIMEOUT,
     create: create,
     Root: Root
 };
+
+function EncfsError(obj, code) {
+    Error.call(this);
+    Error.captureStackTrace(this, this.constructor);
+
+    this.name = this.constructor.name;
+    this.message = typeof obj === 'string' ? obj : JSON.stringify(obj);
+    this.code = code || EncfsError.GENERIC;
+}
+util.inherits(EncfsError, Error);
+EncfsError.GENERIC = 1;
+EncfsError.BUSY = 2;
+EncfsError.BUSY_TIMEOUT = 3;
+EncfsError.EMPTY_PASSWORD = 4;
 
 var ENCFS_CMD = 'encfs';
 var ENCFS_CMD_ARGS = ['--standard', '--stdinpass'];
@@ -20,19 +36,27 @@ var ENCFS_CTL = 'encfsctl';
 var FUSE_CMD = os.platform() === 'darwin' ? 'umount' : 'fusermount';
 var FUSE_CMD_UMOUNT_ARGS = os.platform() === 'darwin' ? [ ] : ['-u'];
 
+var BUSY_TIMEOUT = 1000;
+
 // Internal helper
 function spawnProcess(process, args, callback) {
     var proc = spawn(process, args);
+    var errorData = '';
+    var stdoutData = '';
 
     proc.on('error', function (code, signal) {
         debug('Process error: code %d caused by signal %s', code, signal);
-        callback({ code: code, signal: signal });
+        callback(new EncfsError({ code: code, signal: signal }));
     });
 
     proc.on('exit', function (code, signal) {
         debug('Process exit: code %d caused by signal %s', code, signal);
         if (code !== 0) {
-            return callback({ code: code, signal: signal });
+            if (errorData.indexOf('Device or resource busy') >= 0) {
+                return callback(new EncfsError(errorData, EncfsError.BUSY));
+            }
+
+            return callback(new EncfsError({ code: code, signal: signal }));
         }
 
         return callback();
@@ -44,6 +68,7 @@ function spawnProcess(process, args, callback) {
 
     proc.stderr.on('data', function (data) {
         debug('Process data on stderr: %s', data);
+        errorData += data;
     });
 
     return proc.stdin;
@@ -97,7 +122,7 @@ function create(rootPath, mountPoint, password, callback) {
 
     if (password.length === 0) {
         debug('encfs.create() - Password must not be zero length');
-        return callback(new Error('Password must not be zero length'));
+        return callback(new EncfsError('Password must not be zero length', EncfsError.EMPTY_PASSWORD));
     }
 
     var absRootPath = path.resolve(__dirname, rootPath);
@@ -147,9 +172,30 @@ Root.prototype.mount = function(password, callback) {
 Root.prototype.unmount = function(callback) {
     assert(typeof callback === 'function', '1 argument must be a callback function');
 
-    var args = FUSE_CMD_UMOUNT_ARGS.concat([this.mountPoint]);
+    debug('unmount() ' + this.mountPoint);
 
-    spawnProcess(FUSE_CMD, args, callback);
+    var args = FUSE_CMD_UMOUNT_ARGS.concat([this.mountPoint]);
+    var timeout = BUSY_TIMEOUT;
+
+    function tryUnmount() {
+        spawnProcess(FUSE_CMD, args, function (error) {
+            if (error && error.code === EncfsError.BUSY) {
+                if (timeout) {
+                    debug('Device still busy. Schedule timeout to retry in ' + timeout + 'ms.');
+                    setTimeout(tryUnmount, timeout);
+                    timeout = 0;
+                    return;
+                }
+
+                debug('Unmount failed even after retry. Device still busy.');
+                return callback(new EncfsError('Operation timed out device still busy.', EncfsError.BUSY_TIMEOUT));
+            }
+
+            callback(error);
+        });
+    }
+
+    tryUnmount();
 };
 
 Root.prototype.info = function(callback) {

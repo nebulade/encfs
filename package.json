@@ -6,6 +6,10 @@
     "name": "Johannes Zellner",
     "email": "webmaster@nebulon.de"
   },
+  "bugs": {
+    "url": "https://github.com/nebulade/encfs/issues",
+    "email": "webmaster@nebulon.de"
+  },
   "engines": [
     "node >= 0.8.0"
   ],

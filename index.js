@@ -38,6 +38,9 @@ var FUSE_CMD_UMOUNT_ARGS = os.platform() === 'darwin' ? [ ] : ['-u'];
 
 var BUSY_TIMEOUT = 1000;
 
+// on Mac, creating and mounting volumes requires a delay. umounting immediately fails
+var ENCFS_DELAY = os.platform() === 'darwin' ? 1000 : 0;
+
 // Internal helper
 function spawnProcess(process, args, callback) {
     var proc = spawn(process, args);
@@ -97,7 +100,7 @@ function createOrMount(root, password, callback) {
             return callbackWrapper(error);
         }
 
-        callbackWrapper();
+        setTimeout(callbackWrapper, ENCFS_DELAY);
     });
 
     if (stdin) {

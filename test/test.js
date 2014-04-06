@@ -13,8 +13,7 @@ var encfs = require('../index.js'),
     rimraf = require('rimraf'),
     async = require('async'),
     assert = require('assert'),
-    expect = require('expect.js'),
-    os = require('os');
+    expect = require('expect.js');
 
 var TMP_DIR = 'encfs-test-' + crypto.randomBytes(4).readUInt32LE(0);
 var TEST_ROOT = path.join(TMP_DIR, 'test_root');
@@ -22,9 +21,6 @@ var TEST_MNT = path.join(TMP_DIR, 'test_mnt');
 
 var TEST_ROOT_FAIL = '/test_root';
 var TEST_MNT_FAIL = '/test_mnt';
-
-// on Mac, creating and mounting volumes requires a delay. umounting immediately fails
-var ENCFS_DELAY = os.platform() === 'darwin' ? 2000 : 0;
 
 encfs.BUSY_TIMEOUT = 10000;
 
@@ -48,7 +44,7 @@ describe('encfs', function () {
                 expect(result).to.be.ok();
 
                 volume = result;
-                setTimeout(done, ENCFS_DELAY);
+                done();
             });
         });
 
@@ -78,7 +74,7 @@ describe('encfs', function () {
         it('mount volume', function (done) {
             volume.mount('foobar1337', function (error) {
                 expect(error).to.not.be.ok();
-                setTimeout(done, ENCFS_DELAY);
+                done();
             });
         });
 
@@ -102,7 +98,7 @@ describe('encfs', function () {
                 expect(result).to.be.ok();
 
                 volume = result;
-                setTimeout(done, ENCFS_DELAY);
+                done();
             });
         });
 
@@ -132,7 +128,7 @@ describe('encfs', function () {
         it('mount volume', function (done) {
             volume.mount('foobar1337', function (error) {
                 expect(error).to.not.be.ok();
-                setTimeout(done, ENCFS_DELAY);
+                done();
             });
         });
 
